@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作面板 - 零信任系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="container mt-5">
+    <div class="row">
+        <!-- 信誉值卡片 -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">当前信誉值</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div id="reputationChart" style="height: 200px;"></div>
+                    <p class="mt-2 fs-3" id="reputationValue">{{ reputation }}</p>
+                    <p class="text-muted">每30秒自动更新 | 阈值：60分</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作模拟 -->
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">操作模拟</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-3 mb-4">
+                        <button id="legalOpBtn" class="btn btn-success">执行合法操作（+10分）</button>
+                        <button id="illegalOpBtn" class="btn btn-danger">执行违规操作（-50分）</button>
+                    </div>
+                    <div id="opMsg" class="text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作日志 -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">最近操作日志</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>操作内容</th>
+                                <th>评分</th>
+                                <th>操作时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.operation }}</td>
+                                <td class="{% if log.score > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ log.score }}
+                                </td>
+                                <td>{{ log.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-center">暂无操作日志</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // 1. 初始化信誉值图表
+        const ctx = document.getElementById('reputationChart').getContext('2d');
+        const reputationChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['当前信誉值', '差额'],
+                datasets: [{
+                    data: [{{ reputation }}, Math.max(0, 100 - {{ reputation }})],
+                    backgroundColor: ['#28a745', '#e9ecef'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 2. 定时更新信誉值
+        setInterval(async () => {
+            try {
+                const res = await axios.get('/dashboard');
+                const newReputation = res.data.match(/<p class="mt-2 fs-3" id="reputationValue">(\d+)<\/p>/)[1];
+                document.getElementById('reputationValue').textContent = newReputation;
+                // 更新图表
+                reputationChart.data.datasets[0].data = [newReputation, Math.max(0, 100 - newReputation)];
+                reputationChart.update();
+                // 信誉值低于阈值：刷新页面触发重新认证
+                if (newReputation < 60) {
+                    alert('信誉值低于阈值，需重新认证！');
+                    window.location.href = '/';
+                }
+            } catch (e) {}
+        }, 30000);
+
+        // 3. 操作模拟
+        document.getElementById('legalOpBtn').addEventListener('click', async () => {
+            await logOperation('读取授权文件', true);
+        });
+        document.getElementById('illegalOpBtn').addEventListener('click', async () => {
+            await logOperation('修改无权限配置', false);
+        });
+
+        async function logOperation(operation, isLegal) {
+            const msgEl = document.getElementById('opMsg');
+            try {
+                const res = await axios.post('/api/operation/log', { operation, is_legal: isLegal });
+                if (res.data.code === 200) {
+                    msgEl.className = 'text-center text-success';
+                    msgEl.textContent = `操作成功：${operation}`;
+                    // 刷新页面更新日志
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            } catch (e) {
+                msgEl.className = 'text-center text-danger';
+                msgEl.textContent = '操作记录失败';
+            }
+        }
+    </script>
+</body>
+</html>
