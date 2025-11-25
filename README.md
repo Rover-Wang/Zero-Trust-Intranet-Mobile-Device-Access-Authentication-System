@@ -8,7 +8,7 @@
 
 轻量级内网移动设备零信任认证系统，遵循「永不信任，始终验证」核心理念，通过设备指纹、ABAC 策略、动态信誉值三重防护，保障内网资源安全接入。
 
-## 📋 项目简介
+## 项目简介
 
 针对企业 / 家庭内网移动设备接入风险，本系统提供从设备合法性校验到访问权限动态管控的全流程解决方案，无需复杂部署即可实现：
 
@@ -20,7 +20,7 @@
 
 * 操作行为审计（全流程日志记录与追溯）
 
-## 🎯 核心功能
+## 核心功能
 
 ### 1. 设备身份认证
 
@@ -57,7 +57,7 @@ C -- 否 --> E
 
 * 策略配置可视化界面
 
-## 🚀 快速开始
+## 快速开始
 
 ### 1. 环境准备
 
@@ -101,7 +101,7 @@ pip install -r requirements.txt
 cp examples/.env.example .env
 ```
 
-1. **编辑核心配置**（.env 文件）
+2. **编辑核心配置**（.env 文件）
 
 ```
 \# 系统密钥（建议使用openssl rand -hex 16生成）
@@ -121,7 +121,7 @@ REPUTATION\_THRESHOLD=70      # 信誉值最低阈值
 CALCULATE\_INTERVAL=30        # 信誉值计算周期(秒)
 ```
 
-1. **初始化数据库**
+3. **初始化数据库**
 
 ```
 python init\_db.py
@@ -167,7 +167,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 zero\_trust.app:app
 
 * Linux：`sudo ufw disable`
 
-1. 确认服务监听配置（app.py）：`host='``0.0.0.0``'`
+3. 确认服务监听配置（app.py）：`host='``0.0.0.0``'`
 
 ### 核心测试场景
 
@@ -202,7 +202,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 zero\_trust.app:app
 | 校验失败但 IP 在白名单 | 1. 编辑 device\_utils.py，添加`print(device_attrs)`2. 重启服务查看 os\_type 字段 | 1. 确认设备型号输入正确2. 调整 OS 识别逻辑                          |
 | 信誉值不更新        | 1. 查看控制台线程日志2. 检查 CALCULATE\_INTERVAL 配置                            | 1. 确保`start_reputation_calculator()`执行2. 验证数据库提交无报错 |
 
-## 🔧 技术架构
+## 技术架构
 
 ### 系统架构图
 
@@ -227,7 +227,7 @@ graph TD
 | 密码加密  | bcrypt       | 4.0.1+  |
 | 前端 UI | Bootstrap    | 5.2.3+  |
 
-## 📈 功能扩展
+## 功能扩展
 
 ### 推荐扩展方向
 
@@ -265,47 +265,19 @@ user.totp\_secret = totp.secret
 db.session.commit()
 ```
 
-## 🤝 贡献指南
-
-### 提交规范
-
-* 分支命名：`feature/功能名称`、`bugfix/问题描述`
-
-* 提交信息：`类型(模块): 描述内容`（例：`feat(auth): 添加短信验证码功能`）
-
-### 协作流程
-
-1. Fork 本仓库
-
-2. 创建特性分支（`git checkout -b feature/xxx`）
-
-3. 提交修改（`git commit -m 'feat: xxx'`）
-
-4. 推送分支（`git push origin feature/xxx`）
-
-5. 创建 Pull Request（附功能说明 + 测试报告）
-
-### 开发规范
-
-* 代码风格：遵循 PEP8 规范，使用 pylint 检查
-
-* 测试要求：核心功能需编写 pytest 测试用例
-
-* 文档更新：新增功能需同步更新 README 与架构图
-
-## 📄 许可证
+## 许可证
 
 本项目基于**MIT 许可证**开源，详见[LICENSE](LICENSE)文件。
 
-## 📞 联系与支持
+## 联系与支持
 
-* 项目维护者：\[你的名称 / 团队名]
+* 项目维护者：\[暨南大学王若凡(https://github.com/Rover-Wang)]
 
 * 问题反馈：通过 Issues 提交（使用模板规范描述）
 
-* 技术交流：\[邮箱地址] / \[Discord 链接]
+* 技术交流：\[1308533838@qq.com] 
 
-## 📋 版本更新日志
+## 版本更新日志
 
 ### v1.0.0（首次发布）
 
