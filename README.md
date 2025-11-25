@@ -1,4 +1,4 @@
-# ZeroTrustDeviceAuth
+# README
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 
@@ -70,25 +70,25 @@ C -- 否 --> E
 #### 软件依赖
 
 ```
-\# 克隆仓库
+# 克隆仓库
 
-git clone https://github.com/\[你的用户名]/ZeroTrustDeviceAuth.git
+git clone https://github.com/[你的用户名]/Zero-Trust-Intranet-Mobile-Device-Access-Authentication-System.git
 
-cd ZeroTrustDeviceAuth
+cd Zero-Trust-Intranet-Mobile-Device-Access-Authentication-System
 
-\# 创建虚拟环境
+# 创建虚拟环境
 
 python -m venv venv
 
-\# Windows激活
+# Windows激活
 
 venv\Scripts\activate
 
-\# Mac/Linux激活
+# Mac/Linux激活
 
 source venv/bin/activate
 
-\# 安装依赖
+# 安装依赖
 
 pip install -r requirements.txt
 ```
@@ -104,58 +104,52 @@ cp examples/.env.example .env
 2. **编辑核心配置**（.env 文件）
 
 ```
-\# 系统密钥（建议使用openssl rand -hex 16生成）
+# 系统密钥（建议使用openssl rand -hex 16生成）
 
-SECRET\_KEY=your\_secure\_random\_key
+SECRET_KEY=your_secure_random_key
 
-\# 数据库配置（默认SQLite，支持MySQL替换）
+# 数据库配置（默认SQLite，支持MySQL替换）
 
-DATABASE\_URI=sqlite:///zero\_trust.db
+DATABASE_URI=sqlite:///zero_trust.db
 
-\# 策略参数
+# 策略参数
 
-IP\_WHITELIST=192.168.1.0/24  # 替换为你的内网网段
+IP_WHITELIST=192.168.1.0/24  # 替换为你的内网网段
 
-REPUTATION\_THRESHOLD=70      # 信誉值最低阈值
+REPUTATION_THRESHOLD=70      # 信誉值最低阈值
 
-CALCULATE\_INTERVAL=30        # 信誉值计算周期(秒)
+CALCULATE_INTERVAL=30        # 信誉值计算周期(秒)
 ```
 
 3. **初始化数据库**
 
 ```
-python init\_db.py
+python init_db.py
 ```
 
 ### 3. 启动服务
 
 ```
-\# 开发环境
+# 开发环境
 
-python zero\_trust/app.py
+python zero_trust/app.py
 
-\# 生产环境（推荐）
+# 生产环境（推荐）
 
-gunicorn -w 4 -b 0.0.0.0:5000 zero\_trust.app:app
+gunicorn -w 4 -b 0.0.0.0:5000 zero_trust.app:app
 ```
 
-> 启动成功提示：
->
-> `Running on all addresses (`
->
-> `0.0.0.0:5000`
->
-> `)`
+> 启动成功提示：`Running on all addresses (0.0.0.0:5000)`
 
 ### 4. 访问系统
 
 | 设备类型    | 访问地址                                           | 测试账号           |
 | ------- | ---------------------------------------------- | -------------- |
 | 部署服务器本地 | [http://localhost:5000](http://localhost:5000) | test1/123456   |
-| 内网 PC   | http://\[服务器内网 IP]:5000                        | admin/admin123 |
-| 内网手机    | http://\[服务器内网 IP]:5000                        | test2/654321   |
+| 内网 PC   | http://[服务器内网 IP]:5000                        | admin/admin123 |
+| 内网手机    | http://[服务器内网 IP]:5000                        | test2/654321   |
 
-## 🧪 内网测试指南
+## 内网测试指南
 
 ### 测试前置条件
 
@@ -167,7 +161,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 zero\_trust.app:app
 
 * Linux：`sudo ufw disable`
 
-3. 确认服务监听配置（app.py）：`host='``0.0.0.0``'`
+3. 确认服务监听配置（app.py）：`host='0.0.0.0'`
 
 ### 核心测试场景
 
@@ -198,9 +192,9 @@ gunicorn -w 4 -b 0.0.0.0:5000 zero\_trust.app:app
 
 | 问题现象          | 排查步骤                                                                | 解决方案                                                |
 | ------------- | ------------------------------------------------------------------- | --------------------------------------------------- |
-| 无法访问网站        | 1. ping 服务器 IP2. telnet 服务器 IP 5000                                 | 1. 检查网络连接2. 关闭防火墙3. 重启 Flask 服务                     |
-| 校验失败但 IP 在白名单 | 1. 编辑 device\_utils.py，添加`print(device_attrs)`2. 重启服务查看 os\_type 字段 | 1. 确认设备型号输入正确2. 调整 OS 识别逻辑                          |
-| 信誉值不更新        | 1. 查看控制台线程日志2. 检查 CALCULATE\_INTERVAL 配置                            | 1. 确保`start_reputation_calculator()`执行2. 验证数据库提交无报错 |
+| 无法访问网站        | 1. ping 服务器 IP  2. telnet 服务器 IP 5000                                 | 1. 检查网络连接  2. 关闭防火墙  3. 重启 Flask 服务                     |
+| 校验失败但 IP 在白名单 | 1. 编辑 device\_utils.py，添加`print(device_attrs)`  2. 重启服务查看 os\_type 字段 | 1. 确认设备型号输入正确  2. 调整 OS 识别逻辑                          |
+| 信誉值不更新        | 1. 查看控制台线程日志  2. 检查 CALCULATE\_INTERVAL 配置                            | 1. 确保`start_reputation_calculator()`执行  2. 验证数据库提交无报错 |
 
 ## 技术架构
 
@@ -242,25 +236,25 @@ graph TD
 ### 扩展开发示例（多因素认证）
 
 ```
-\# 安装依赖
+# 安装依赖
 
 pip install pyotp
 
-\# 在models.py添加字段
+# 在models.py添加字段
 
 class User(db.Model):
 
-&#x20;   # 原有字段...
+    # 原有字段...
 
-&#x20;   totp\_secret = db.Column(db.String(16))
+    totp_secret = db.Column(db.String(16))
 
-\# 生成令牌
+# 生成令牌
 
 import pyotp
 
-totp = pyotp.TOTP(pyotp.random\_base32())
+totp = pyotp.TOTP(pyotp.random_base32())
 
-user.totp\_secret = totp.secret
+user.totp_secret = totp.secret
 
 db.session.commit()
 ```
@@ -271,11 +265,11 @@ db.session.commit()
 
 ## 联系与支持
 
-* 项目维护者：\[暨南大学王若凡(https://github.com/Rover-Wang)]
+* 项目维护者：暨南大学王若凡(https://github.com/Rover-Wang)
 
 * 问题反馈：通过 Issues 提交（使用模板规范描述）
 
-* 技术交流：\[1308533838@qq.com] 
+* 技术交流：1308533838@qq.com
 
 ## 版本更新日志
 
@@ -287,4 +281,3 @@ db.session.commit()
 
 * 支持多设备内网接入测试
 
-> （注：文档部分内容可能由 AI 生成）
