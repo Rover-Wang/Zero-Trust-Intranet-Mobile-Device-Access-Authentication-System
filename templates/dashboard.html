@@ -96,7 +96,7 @@
         // 2. 定时更新信誉值
         setInterval(async () => {
             try {
-                const res = await axios.get('/dashboard');
+                const res = await axios.get('/dashboard', { withCredentials: true }); // 新增：携带Session
                 const newReputation = res.data.match(/<p class="mt-2 fs-3" id="reputationValue">(\d+)<\/p>/)[1];
                 document.getElementById('reputationValue').textContent = newReputation;
                 // 更新图表
@@ -121,16 +121,22 @@
         async function logOperation(operation, isLegal) {
             const msgEl = document.getElementById('opMsg');
             try {
-                const res = await axios.post('/api/operation/log', { operation, is_legal: isLegal });
+                // 关键修复：添加 withCredentials: true，携带Session（后端需通过Session获取设备指纹）
+                const res = await axios.post(
+                    '/api/operation/log', 
+                    { operation, is_legal: isLegal },
+                    { withCredentials: true } // 新增：核心配置，确保Session传递
+                );
                 if (res.data.code === 200) {
                     msgEl.className = 'text-center text-success';
-                    msgEl.textContent = `操作成功：${operation}`;
+                    msgEl.textContent = `操作成功：${operation}，30秒后更新信誉值`;
                     // 刷新页面更新日志
                     setTimeout(() => window.location.reload(), 1000);
                 }
             } catch (e) {
                 msgEl.className = 'text-center text-danger';
-                msgEl.textContent = '操作记录失败';
+                msgEl.textContent = '操作记录失败，请检查登录状态';
+                console.error('操作失败原因：', e);
             }
         }
     </script>

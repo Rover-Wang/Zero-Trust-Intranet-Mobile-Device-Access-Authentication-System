@@ -23,6 +23,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // 配置axios全局携带credentials（关键：保留session信息）
+        axios.defaults.withCredentials = true;
+
         document.getElementById('checkBtn').addEventListener('click', async () => {
             const deviceModel = document.getElementById('deviceModel').value;
             const msgEl = document.getElementById('msg');
@@ -33,21 +36,26 @@
             }
 
             try {
-                const res = await axios.post('/api/device/register', { device_model: deviceModel });
+                // 动态拼接请求地址（适配内网IP，避免写死127.0.0.1）
+                const requestUrl = `${location.origin}/api/device/register`;
+                const res = await axios.post(requestUrl, { device_model: deviceModel });
+                
                 if (res.data.code === 200) {
                     msgEl.className = 'mt-3 text-center text-success';
                     msgEl.textContent = '设备校验通过，跳转登录...';
-                    // 跳转登录页
+                    // 动态拼接登录地址（内网IP+设备指纹）
+                    const loginUrl = `${location.origin}/login/${res.data.data.device_fingerprint}`;
                     setTimeout(() => {
-                        window.location.href = `/login/${res.data.data.device_fingerprint}`;
+                        window.location.href = loginUrl;
                     }, 1500);
                 } else {
                     msgEl.className = 'mt-3 text-center text-danger';
                     msgEl.textContent = res.data.msg;
                 }
             } catch (e) {
+                console.error('校验失败详情：', e); // 控制台打印错误，方便排查
                 msgEl.className = 'mt-3 text-center text-danger';
-                msgEl.textContent = '请求失败，请重试';
+                msgEl.textContent = `请求失败：${e.message || '网络异常'}`;
             }
         });
     </script>

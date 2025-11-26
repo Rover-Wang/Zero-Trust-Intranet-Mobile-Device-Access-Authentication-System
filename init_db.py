@@ -20,7 +20,7 @@ with app.app_context():
     # 3. 添加默认ABAC策略（仅允许内网Windows设备接入）
     policy_conditions = json.dumps({
         "ip_range": "192.168.1.0/24",
-        "os_type": "Windows"
+        "os_type": ["Windows","Windows 11"]
     })
     policy_permissions = json.dumps({
         "read": True,

@@ -42,12 +42,13 @@ class AccessPolicy(db.Model):
     conditions = db.Column(db.Text, nullable=False)
     # 权限列表（JSON格式：如{"read":true,"write":false}）
     permissions = db.Column(db.Text, nullable=False)
-
+    is_active = db.Column(db.Boolean, default=True)  # 新增：策略启用状态（默认启用）
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)  # 新增：创建时间
 # 4. 操作日志表（存储操作记录与评分）
 class OperationLog(db.Model):
     __tablename__ = 'operation_logs'
     id = db.Column(db.Integer, primary_key=True)
-    device_id = db.Column(db.String(64), nullable=False)  # 设备指纹
+    device_fingerprint = db.Column(db.String(64), nullable=False)  # 设备指纹
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     operation = db.Column(db.String(100), nullable=False)  # 操作内容
     score = db.Column(db.Integer, nullable=False)  # 评分
